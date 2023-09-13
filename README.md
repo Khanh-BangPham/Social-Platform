@@ -15,11 +15,11 @@ I focused on basic funtionality like:
 - Post/comment/react
   
 Innovative functions are expected to be added:
-- Automated online interview
+- Automated online interview:
   The function helps companies create their own interviews without spending a lot of time asking the same questions to different candidates. Instead, companies only need to prepare questions for each topic:   
     introductory questions, technical questions, soft skills questions, and keywords needed in the candidates' answers. The application will record the interview and evaluate answers by analyzing voice and       
     attitude to determine the level of compatibility between the candidate and the company's application goals.
-- Smart suggestions between company and candidate
+- Smart suggestions between company and candidate:
   The function helps companies and candidates find each other more easily by simultaneously analyzing the information of candidates and employers.
 
 ## Database
