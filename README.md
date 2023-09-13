@@ -1,6 +1,6 @@
 # Simple-Social-Platform
 ## Introduction
-This is a project I carried out to upgrade my coding skills using two frameworks: ReactJS and NodeJS. I focused more on NodeJS and database optimization.
+This is a project I carried out to upgrade my coding skills using two frameworks: ReactJS and NodeJS/MongoDB. I focused more on NodeJS and database optimization.
 
 Database allow to add users, connections between them, as well as companies. Companies have managers (users) who are responsible for managing the page. Both users and companies can add posts, but only users can comment or like them (and like comments also). Post can be assigned to multiple tags, and every user can follow any number of tags. The user's profile can be viewed by another user, which is stored in database.
 
