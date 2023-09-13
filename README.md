@@ -13,6 +13,7 @@ I focused on basic funtionality like:
 - Chat real-time
 - User connections
 - Post/comment/react
+  
 Innovative functions are expected to be added:
 - Automated online interview
   The function helps companies create their own interviews without spending a lot of time asking the same questions to different candidates. Instead, companies only need to prepare questions for each topic:   
