@@ -23,7 +23,7 @@ Innovative functions are expected to be added:
 
 ## Database
 ### Relational Diagram
-![image](https://github.com/Khanh-BangPham/Social-Platform/assets/77458357/541c655f-6ca2-4df7-8a2b-123e21589fd5)
+![image](https://github.com/Khanh-BangPham/Social-Platform/assets/77458357/7db0f4fa-e117-43c7-af67-0a37e5d0c635)
 ### Triggers
 There are 3 triggers:
 
