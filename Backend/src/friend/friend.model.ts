@@ -2,16 +2,20 @@ import { Schema, model } from "mongoose";
 
 const friendSchema = new Schema(
   {
-    senderId: {
+    sender: {
       type: Schema.Types.ObjectId,
       ref: "User",
+      // as: 'sender'
     },
-    receiverId: {
+    receiver: {
       type: Schema.Types.ObjectId,
       ref: "User",
+      // as: 'receiver'
     },
-    confirm: Boolean,
-    times: Number,
+    confirm: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

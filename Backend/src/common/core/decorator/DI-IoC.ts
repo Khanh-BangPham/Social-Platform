@@ -1,28 +1,18 @@
-function isClass(v: any) {
-  return typeof v === "function" && /^\s*class\s+/.test(v.toString());
-}
-
 export class Container {
-  private providers: { [key: string]: any } = {};
+  private providers: { [k: string]: any } = {};
 
-  public register(token: any, value: (new () => any) | any) {
+  public register(token: any, value: any) {
     try {
       this.providers[token] = new value();
     } catch (err) {
       this.providers[token] = value;
     }
-    // if (isClass(value)) {
-    //   this.providers[token] = new value();
-    // } else {
-    //   this.providers[token] = value;
-    // }
   }
 
   public resolve<T = any>(token: (new () => T) | string): T {
-    const matchedProvider = this.providers[token as any];
-
-    if (matchedProvider) {
-      return matchedProvider;
+    const matchProvider = this.providers[token as any];
+    if (matchProvider) {
+      return matchProvider;
     } else {
       throw new Error(`No provider found for ${token}!`);
     }
@@ -31,19 +21,29 @@ export class Container {
 
 export const container = new Container();
 
-export function Injectable(token?: any): Function {
-  return function (target: { new (): any }): void {
-    container.register(token || target, target);
+export function Injectable(token?: any): any {
+  return (target: { new (): any }) => {
+    container.register(token || target.name, target);
   };
 }
 
 export function Inject(token?: any): any {
-  return function (target: any, methodName: string, index: number): any {
-    let discriptor: PropertyDescriptor = {
-      get: () => container.resolve(token),
+  return function (target: any, attributeName: string) {
+    Object.defineProperty(target, attributeName, {
+      get: () => container.resolve(token?.name || token),
       enumerable: true,
       configurable: true,
-    };
-    return discriptor;
+    });
   };
 }
+
+class A {
+  constructor(private readonly a: number) {}
+
+  // private a: number
+  // constructor(a: number) {
+  //   this.a = a
+  // }
+}
+
+let a = new A(234);

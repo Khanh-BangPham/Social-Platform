@@ -1,4 +1,13 @@
-import { Injectable } from "@core/decorator/DI-IoC";
+import { Injectable } from "@/common/core/decorator/DI-IoC";
+import { Post } from "./models/post.model";
 
 @Injectable()
-export class PostService {}
+export class PostService {
+  searchPost(content: string) {
+    return Post.find({ $text: { $search: content } });
+  }
+
+  searchOnePost(content: string) {
+    return Post.findOne({ $text: { $search: content } });
+  }
+}

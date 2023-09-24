@@ -1,17 +1,39 @@
-import _ from "lodash";
 import mongoose, { Schema } from "mongoose";
 
-const userSchema = new Schema(
+const LocationSchema = new Schema({
+  type: { type: String, default: "Point" },
+  coordinates: {
+    type: [Number],
+  },
+});
+
+const UserSchema = new Schema(
   {
     name: {
-      type: Schema.Types.String,
+      type: String,
       required: true,
       index: "text",
     },
+    nickname: String,
+    hideFriendList: {
+      type: Boolean,
+      default: false,
+    },
+    location: LocationSchema,
+    cover: String,
+
     email: {
-      type: String,
+      type: Schema.Types.String,
       unique: true,
       required: true,
+    },
+    avatar: {
+      type: String,
+      default: null,
+    },
+    birthday: {
+      type: Date,
+      default: null,
     },
     password: {
       type: String,
@@ -27,22 +49,42 @@ const userSchema = new Schema(
       default: null,
       required: false,
     },
-    loginHistories: [
+    block: [
       {
-        time: Date,
-        ip: String,
+        type: Schema.Types.ObjectId,
+        ref: "User",
       },
     ],
-    enabled: Boolean,
-    passwordOneTime: {
-      type: [String],
-      select: false,
+    allowFollow: {
+      type: Boolean,
+      default: true,
     },
-    towLayerSecurity: Boolean,
+    follow: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    changePasswordHistories: [
+      {
+        password: String,
+        changeAt: Date,
+      },
+    ],
+    sendMailAt: Date,
+    socketId: String,
+    online: Boolean,
   },
   {
     timestamps: true,
   }
 );
+UserSchema.index({ "location.coordinates": "2dsphere" });
+// export const userSchema = `
+//     type User {
+//         id: String
+//         name: String
+//     }
+// `;
 
-export const User = mongoose.model("User", userSchema);
+export const User = mongoose.model("User", UserSchema);

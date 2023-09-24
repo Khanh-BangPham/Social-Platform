@@ -1,28 +1,27 @@
 import crypto from "crypto";
-import { User } from "../user/user.model";
+import { User } from "@/user/user.model";
+import { JWT } from "@/common/config";
 import jsonwebtoken from "jsonwebtoken";
-import { JWT } from "../common/config";
 import { Token } from "./token.model";
-import { Injectable } from "../common/core/decorator/DI-IoC";
+import { Injectable } from "@core/decorator/DI-IoC";
 
 export interface LoginInput {
   email: string;
   password: string;
 }
-
-export interface JwtData {
+export interface JWTPayload {
   id: string;
 }
 
 @Injectable()
 export class AuthService {
-  public static async login(input: LoginInput) {
+  public async login(input: LoginInput) {
     let { email, password } = input;
 
     password = crypto.createHash("sha256").update(password).digest("hex");
 
     let user = await User.findOne({
-      email,
+      email: email.toLowerCase(),
       password,
       verify: true,
     });
@@ -34,7 +33,7 @@ export class AuthService {
       let refreshToken = jsonwebtoken.sign({ id: user.id }, JWT.SECRET_KEY);
 
       await Token.deleteMany({
-        userId: user._id,
+        userId: user.id,
       });
 
       let token = new Token({ refreshToken, userId: user.id });
@@ -46,23 +45,20 @@ export class AuthService {
     throw "Email hoặc password không chính xác";
   }
 
-  public static async refreshToken(token: string) {
-    let check = jsonwebtoken.verify(token, JWT.SECRET_KEY) as JwtData;
+  public async refreshToken(refreshToken: string) {
+    let check = jsonwebtoken.verify(refreshToken, JWT.SECRET_KEY) as JWTPayload;
     let checkDB = await Token.findOne({
-      refreshToken: token,
+      refreshToken,
       enabled: true,
     });
     if (checkDB) {
-      let accessToken = jsonwebtoken.sign({ _id: check.id }, JWT.SECRET_KEY, {
-        expiresIn: JWT.EXPIRED_IN,
-      });
+      let accessToken = jsonwebtoken.sign({ id: check.id }, JWT.SECRET_KEY);
 
       return {
         accessToken,
-        refreshToken: token,
+        refreshToken,
       };
     }
-
-    throw "Refresh Token Invalid";
+    throw "Thao tác thất bại";
   }
 }

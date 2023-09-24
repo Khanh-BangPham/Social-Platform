@@ -27,13 +27,22 @@ export class HttpResponse {
     };
   }
 
-  static updated(data: any) {
+  static deleted(data: any) {
     return {
-      status: "success",
-      code: 200,
-      message: "Dữ liệu đã được cập nhật thành công.",
-      data,
+      code: 204,
     };
+  }
+
+  static updated(data: any) {
+    if (data.modifiedCount) {
+      return {
+        status: "success",
+        code: 200,
+        message: "Dữ liệu đã được cập nhật thành công.",
+      };
+    }
+
+    throw "Cập nhật dữ liệu thất bại";
   }
 
   static count(count: number) {

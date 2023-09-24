@@ -1,34 +1,36 @@
 import { Controller, Middlewares, Post } from "@/common/core/decorator";
 import { upload } from "./file.middleware";
-import { HttpResponse } from "@/common/utils/HttpResponse";
 import { Request } from "express";
-import { UseGuard } from "@/common/core/decorator/guard";
+import { HttpResponse } from "@/common/utils/HttpResponse";
+
+const STORAGE_URL = process.env.STORAGE_URL;
 
 @Controller("/file")
-@UseGuard()
 export class FileController {
-  @Post("/upload")
+  @Post("/single")
   @Middlewares(upload.single("file"))
-  upload(req: Request) {
+  async uploadSingle(req: Request) {
     if (req.file) {
       return HttpResponse.success({
-        filename: `/upload/${req.file.filename}`,
+        url: `${STORAGE_URL}/${req.file.filename}`,
         size: req.file.size,
         mimetype: req.file.mimetype,
       });
     }
+    return false;
   }
 
-  @Post("/uploads")
+  @Post("/multi")
   @Middlewares(upload.array("files"))
-  uploads(req: Request) {
+  async uploadMulti(req: Request) {
     if (Array.isArray(req.files)) {
-      let resData = req.files.map((e: any) => ({
-        filename: `/upload/${e.filename}`,
+      let resData = req.files.map((e) => ({
+        url: `${STORAGE_URL}/${e.filename}`,
         size: e.size,
         mimetype: e.mimetype,
       }));
       return HttpResponse.success(resData);
     }
+    return false;
   }
 }

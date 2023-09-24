@@ -1,12 +1,9 @@
-import { BaseMiddleware } from "../BaseMiddleware";
+import { BaseMiddleware } from "..";
 import { GUARD_KEY } from "./key";
 
-export const UseGuard =
-  (middleware?: typeof BaseMiddleware): any =>
-  (target: any) => {
-    Reflect.defineMetadata(
-      GUARD_KEY,
-      middleware || true,
-      target
-    );
+export const UseGuard = () => {
+  return (target: any) => {
+    Reflect.defineMetadata(GUARD_KEY, true, target);
   };
+};
+

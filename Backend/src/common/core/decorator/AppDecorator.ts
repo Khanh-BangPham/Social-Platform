@@ -1,14 +1,17 @@
 import cors from "cors";
 import { config } from "dotenv";
 import express, { Express } from "express";
+import { createServer } from "http";
 import helmet from "helmet";
 import path from "path";
 import { errorMiddleware } from "../../config/error.middleware";
-import { IDatabaseConfig, main as connectDatabase } from "../mongoose-config";
-import { BaseMiddleware } from "../BaseMiddleware";
+import {
+  IDatabaseConfig,
+  connectData as connectDatabase,
+} from "../mongoose-config";
+import { BaseMiddleware } from "..";
 import { container } from "./DI-IoC";
-import { APP_TOKEN } from "./key";
-import rateLimit from "express-rate-limit";
+import { APP_KEY } from "./key";
 
 interface AppDecoratorOptions {
   controllers?: any[];
@@ -19,7 +22,7 @@ interface AppDecoratorOptions {
 
 export interface AppData {
   app: Express;
-  guard?: BaseMiddleware;
+  httpServer: ReturnType<typeof createServer>;
 }
 
 export const AppDecorator = (options?: AppDecoratorOptions) => {
@@ -28,61 +31,97 @@ export const AppDecorator = (options?: AppDecoratorOptions) => {
   return (target: any) => {
     return class extends target {
       app: Express;
+      httpServer: ReturnType<typeof createServer>;
       constructor() {
         super();
-
-        // const apiLimiter = rateLimit({
-        //   windowMs: 30 * 1000, // 15 minutes
-        //   max: 1, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
-        //   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-        //   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-        //   // store: ... , // Use an external store for more precise rate limiting
-        // });
-
         this.app = express();
-
-        // this.app.use(apiLimiter);
-
-        let appData: AppData = {
-          app: this.app,
-        };
-
-        if (options?.guard) {
-          appData.guard = new options.guard();
-        }
-
-        container.register(APP_TOKEN, appData);
-
+        this.httpServer = createServer(this.app);
         if (options?.database) {
           connectDatabase(options.database);
         }
 
+        // const accessLogStream = fs.createWriteStream(
+        //   path.join(__dirname, "./logs/access.log"),
+        //   { flags: "a" }
+        // );
+        // const {config} = require('dotenv')
+
+        // morgan.token("id", (req) => {
+        //   return req.id;
+        // });
+
         config();
+        // function assignId(req, res, next) {
+        //   req.id = randomUUID();
+        //   next();
+        // }
 
         this.app.set("view engine", "html");
         this.app.set("views", path.resolve("./src/views"));
 
         this.app.use(express.json());
-        this.app.use(cors());
+        this.app.use(
+          cors({
+            // origin: ["*"],
+          })
+        );
 
-        this.app.use(helmet());
-      }
+        this.app.use(
+          helmet({
+            crossOriginResourcePolicy: false,
+            contentSecurityPolicy: {
+              directives: {
+                "script-src": ["self"],
+              },
+              reportOnly: true,
+            },
+          })
+        );
 
-      async listen(port: number | string | undefined, cb: () => void) {
-        for (let i in options?.modules) {
-          let m = options?.modules[i as any];
-          let module = new m();
-          await module.start();
-        }
+        // this.app.use(assignId);
+
+        // this.app.use(logMiddleware)
+        // this.app.use(morgan("combined", { stream: accessLogStream }));
+
+        // this.app.use(xTokenMiddleware)
 
         if (Array.isArray(controllers) && controllers.length > 0) {
           for (let i in controllers) {
-            new controllers[i]();
+            new controllers[i](this.app, {
+              guard: options?.guard,
+            });
           }
         }
+
+        // this.app.use("/task", taskRouter);
+        // this.app.use("/category", categoryRouter);
+        // this.app.use("/user", userRouter);
+        // this.app.use("/file", fileRouter);
+        // this.app.use("/auth", authRouter);
+
+        // this.app.use(pageRouter);
+
         this.app.use(errorMiddleware);
 
-        this.app.listen(port, cb);
+        container.register(APP_KEY, {
+          app: this.app,
+          httpServer: this.httpServer,
+        });
+        // this.app.all("*", (req, res) => {
+        //   res.status(404).json({ error: "Not Found" });
+        // });
+      }
+
+      async listen(port: number | string | undefined, cb: () => void) {
+        if (Array.isArray(modules)) {
+          for (let i in modules) {
+            let m = modules[i];
+            let module = new m();
+            await module.start();
+          }
+        }
+
+        this.httpServer.listen(port, cb);
       }
 
       use(...args: any[]): void {
