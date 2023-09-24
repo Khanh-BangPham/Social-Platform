@@ -1,0 +1,10 @@
+interface IPost {}
+interface IUser {}
+interface IMedia {}
+interface IEmoji {}
+interface IGif {}
+interface IConversation {}
+interface IMessage {}
+interface IComment {}
+interface IStory {}
+interface ISetting {}
