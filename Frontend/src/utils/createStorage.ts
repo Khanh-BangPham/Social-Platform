@@ -17,3 +17,4 @@ export const createStorage = (name: string) => {
 };
 
 export const userStorage = createStorage("user");
+export const tokenStorage = createStorage("token");

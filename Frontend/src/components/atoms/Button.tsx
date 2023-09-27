@@ -1,17 +1,17 @@
-import { IconSpin } from '@components/atoms/Icon/IconSpin';
+import { IconSpin } from '@components/Icon/IconSpin';
 import { FC } from 'react';
 import { cn } from '../../utils';
 
 const typeClass = {
   default:
-    'text-gray-900  dark:bg-white dark:text-white bg-black !bg-opacity-5 hover:!bg-opacity-10',
-  primary: 'bg-primary-500 hover:bg-primary-600 text-white',
+    'hover:bg-gray-200 dark:hover:bg-slate-700 text-gray-900  dark:bg-slate-800 dark:text-white bg-gray-100 hover:bg-gray-200',
+  primary: 'bg-primary bg-opacity-90 hover:bg-opacity-100 text-white',
   link: '',
   red: 'bg-red-700 bg-opacity-90 hover:bg-opacity-100 text-white',
 };
 
 const sizeClass = {
-  small: 'text-xs px-2 leading-7',
+  small: 'text-xs px-2 leading-7 text-sm',
   default: 'text-sm px-3 leading-9',
   large: 'px-5 leading-12 text-lg',
 };
@@ -25,16 +25,12 @@ export interface ButtonProps {
   outline?: boolean;
   onClick?: () => void;
   loading?: boolean;
-  iconPrefix?: any;
-  iconSuffix?: any;
 }
 
 export const Button: FC<ButtonProps> = ({
   size = 'default',
   type = 'default',
   loading,
-  iconPrefix,
-  iconSuffix,
   ...props
 }) => {
   return (
@@ -42,7 +38,7 @@ export const Button: FC<ButtonProps> = ({
       {...props}
       disabled={props.disabled || loading}
       className={cn(
-        'active:scale-[0.99] font-semibold rounded border-current border-solid',
+        'font-semibold rounded border-current border-solid',
         props.className,
         sizeClass[size],
         typeClass[type],
@@ -51,11 +47,9 @@ export const Button: FC<ButtonProps> = ({
         },
       )}
     >
-      <span className="flex gap-2 items-center justify-center">
-        {iconPrefix}
-        {loading && <IconSpin />}
+      <span className="flex items-center justify-center">
+        {loading && <IconSpin className="mr-2" />}
         {props.children}
-        {iconSuffix}
       </span>
     </button>
   );

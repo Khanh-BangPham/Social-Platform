@@ -1,5 +1,5 @@
-import { cn } from "@utils";
-import { useEffect, useRef, useState } from "react";
+import { cn } from '@utils';
+import React, { useEffect, useRef, useState } from 'react';
 export interface HorizontalScrollProps {
   height: number;
   itemWidth: number;
@@ -14,19 +14,19 @@ export const HorizontalScroll: Atom<HorizontalScrollProps> = ({
   useEffect(() => {
     setWidth(parentRef.current?.offsetWidth);
   }, []);
-  // const length = React.Children.count(children);
+  let length = React.Children.count(children);
   return (
     <div
       ref={parentRef}
-      className={cn("relative overflow-hidden py-2", props.className)}
+      className={cn('relative overflow-hidden py-2', props.className)}
       style={{ height: props.height + 20 }}
     >
       <div
         className="horizontal-scroll "
         style={
           {
-            "--finalHeight": `${props.height}px`,
-            "--itemWidth": `${props.itemWidth}px`,
+            '--finalHeight': `${props.height}px`,
+            '--itemWidth': `${props.itemWidth}px`,
             // left: -2 * props.height + 7,
             // top: 10,
             height: width,

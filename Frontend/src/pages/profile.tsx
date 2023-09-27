@@ -1,130 +1,124 @@
-import { Contenteditable } from '@components/atoms/Contenteditable';
-import { DropFile } from '@components/atoms/DropFile';
-import { IconAddressBook } from '@components/atoms/Icon/IconAddressBook';
-import { IconArrowDown } from '@components/atoms/Icon/IconArrow';
-import { IconTie } from '@components/atoms/Icon/IconTie';
-import { IconWorld } from '@components/atoms/Icon/IconWorld';
-import { Menu } from '@components/atoms/Menu';
-import { Sticky } from '@components/atoms/Sticky';
-import { UploadFile, UploadfileRef } from '@components/atoms/UploadFile';
-import { CardGroup } from '@components/features/CardGroup';
-import { GeneralInfo } from '@components/features/GeneralInfo';
-import { useTitle } from '@hooks/useTitle';
-import { cn } from '@utils';
-import { convertFileToImage } from '@utils/file';
-import { mockUser } from '@utils/mock';
-import { useId, useRef, useState } from 'react';
-import { Avatar } from '../components/atoms/Avatar';
-import { Button } from '../components/atoms/Button';
-import { Card } from '../components/atoms/Card';
-import { Dropdown } from '../components/atoms/Dropdown';
-import { ButtonIconCamera } from '../components/atoms/Icon/IconCamera';
-import { ButtonIconThreeDotAction } from '../components/atoms/Icon/IconThreeDotAction';
-import { ModalAbout } from '../components/features/About';
-import { ModalFriends } from '../components/features/ModalFriends';
-import { NewPost } from '../components/features/NewPost';
-import { Post } from '../components/features/Post';
-import { useTranslate } from '@components/atoms/TranslateProvider';
+import { useState } from "react";
+import { Avatar } from "../components/Avatar";
+import { Button } from "../components/Button";
+import { Card } from "../components/Card";
+import { Dropdown } from "../components/Dropdown";
+import { Icon } from "../components/Icon/Icon";
+import {
+  ButtonIconThreeDotAction,
+  IconThreeDotAction,
+} from "../components/Icon/IconThreeDotAction";
+import { ModalFriends } from "../components/ModalFriends";
+import { NewPost } from "../components/NewPost";
+import { Post } from "../components/Post";
+import { ButtonIconCamera } from "../components/Icon/IconCamera";
+import { ModalAbout } from "../components/features/About";
+import { useQuery } from "@tanstack/react-query";
+import { useMatch, useNavigate, useParams } from "react-router-dom";
+import { GetProfileType, getUserProfile } from "../services";
+import { userService } from "../services/user";
+import { friendService } from "../services/friend";
+import { USER_LOGIN, useGlobalState } from "../store/queryClient";
+import { postService } from "../services/post";
+import { message } from "antd";
+import { PATH } from "../constants/path";
+import { FOLLOWER } from "../constants/queryKey";
 
 export const Profile = () => {
-  const { t } = useTranslate();
   const [open, setOpen] = useState(false);
   const [openAbout, setOpenAbout] = useState(false);
-  const [cover, setCover] = useState('https://unsplash.it/2000/700');
-  const [user, setUser] = useState(mockUser);
-  const uploadFileAvatarRef = useRef<UploadfileRef>(null);
+  const user = useGlobalState(USER_LOGIN);
+  const navigate = useNavigate();
+  const { _id = "" } = useParams<{ _id?: string }>();
+  const { data, refetch: refetchCheckUser } = useQuery({
+    queryKey: [`profile-${_id}`],
+    queryFn: async () => {
+      if (_id) {
+        let res = await getUserProfile(_id);
+        if (res.user === null) {
+          navigate(PATH.Home);
+        }
 
-  useTitle('Đặng Thuyền Vương');
-  const [isEditBio, setIsEditBio] = useState(false);
+        return res;
+      }
+
+      return {
+        user: await userService.getUser(),
+        checkFriend: null,
+      } as GetProfileType;
+    },
+  });
+
+  const { data: follow, refetch: refetchFollow } = useQuery({
+    queryFn: userService.getFollow,
+    queryKey: [FOLLOWER],
+    initialData: [],
+  });
+
+  const { data: posts, refetch } = useQuery({
+    queryKey: [`user-post-${_id === "" ? user?._id : _id}`],
+    queryFn: () =>
+      postService.getUserPosts(_id === "" ? (user?._id as any) : _id),
+  });
 
   return (
     <>
-      <ModalFriends open={open} onCancel={() => setOpen(false)} />
+      <ModalFriends
+        open={open}
+        onCancel={() => setOpen(false)}
+        userId={_id || (user?._id as any)}
+      />
       <ModalAbout open={openAbout} onCancel={() => setOpenAbout(false)} />
       <div>
         <div className="bg-white dark:bg-slate-900">
           <div className="relative">
-            <DropFile
-              className="h-[500px] w-full"
-              includes={{
-                files: async ([file]) => {
-                  const img = await convertFileToImage(file);
-                  setCover(img);
-                },
-              }}
-            >
-              <img className="object-cover w-full h-full" src={cover} />
-            </DropFile>
+            <div className="w-full h-[400px]">
+              <img
+                className="object-cover w-full h-full"
+                src={data?.user?.cover}
+              />
+            </div>
             <div className="container relative mx-auto">
-              <UploadFile
-                onChange={async ([file]) => {
-                  const img = await convertFileToImage(file);
-                  setCover(img);
-                }}
-              >
-                <Button className="cursor-pointer absolute bottom-2 right-2 text-white  text-sm flex items-center !bg-black !bg-opacity-30 hover:!bg-opacity-40">
-                  <ButtonIconCamera
-                    transparent
-                    className="text-white hover:bg-transparent"
-                  />
-                  {t('Change cover photo')}
-                </Button>
-              </UploadFile>
+              <div className="cursor-pointer hover:bg-opacity-60 absolute bottom-2 right-2 bg-black rounded bg-opacity-50 text-white  text-sm flex items-center px-2 py-0.5 drop-shadow-2xl shadow-white">
+                <ButtonIconCamera
+                  transparent
+                  className="text-white hover:bg-transparent"
+                />
+                Thay đổi ảnh bìa
+              </div>
             </div>
           </div>
           <div className="container mx-auto px-4">
             <div className="flex gap-6 -mt-8 pb-8 border-b border-solid border-gray-300 px-4 dark:border-slate-700">
-              <Dropdown
-                autoClose
-                content={
-                  <Menu
-                    menus={[
-                      {
-                        label: t('View profile picture'),
-                        onClick: () => {},
-                      },
-                      {
-                        label: t('Update profile picture'),
-                        onClick: () => uploadFileAvatarRef.current?.trigger(),
-                      },
-                      {
-                        label: t('Protect your profile picture'),
-                      },
-                    ]}
-                  />
-                }
-              >
-                <div className="active:scale-95 relative shadow-[0_0_0_3px] shadow-white rounded-full dark:shadow-slate-900">
-                  <DropFile
-                    backdropClassName="rounded-full"
-                    includes={{
-                      files: async ([file]) => {
-                        const img = await convertFileToImage(file);
-                        setUser({ ...user, avatar: img });
-                      },
-                    }}
+              <div className="relative shadow-[0_0_0_3px] shadow-white rounded-full dark:shadow-slate-900">
+                <Avatar src={data?.user?.avatar} size={180} />
+                <Icon className="absolute bottom-1 right-5">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="icon icon-tabler icon-tabler-camera"
+                    width={17}
+                    height={17}
+                    viewBox="0 0 24 24"
+                    strokeWidth={2}
+                    stroke="currentColor"
+                    fill="none"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
                   >
-                    <Avatar
-                      className="select-none"
-                      size={180}
-                      src={user.avatar}
-                    />
-                  </DropFile>
-                  <UploadFile
-                    ref={uploadFileAvatarRef}
-                    onChange={async ([file]) => {
-                      const img = await convertFileToImage(file);
-                      setUser({ ...user, avatar: img });
-                    }}
-                  >
-                    <ButtonIconCamera className="absolute bottom-1 right-5" />
-                  </UploadFile>
-                </div>
-              </Dropdown>
-
-              {/* <div className="mt-auto">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M5 7h1a2 2 0 0 0 2 -2a1 1 0 0 1 1 -1h6a1 1 0 0 1 1 1a2 2 0 0 0 2 2h1a2 2 0 0 1 2 2v9a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-9a2 2 0 0 1 2 -2" />
+                    <path d="M9 13a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" />
+                  </svg>
+                </Icon>
+              </div>
+              <div className="mt-auto">
                 <h1 className="text-3xl font-bold">
-                  Vương Đặng Thuyền <span className="font-normal">(Nar)</span>
+                  {data?.user?.name}{" "}
+                  {data?.user?.nickname && (
+                    <span className="font-normal">
+                      ({data?.user?.nickname})
+                    </span>
+                  )}
                 </h1>
                 <p className="text-gray-600 font-semibold">543 Friends</p>
                 <div className="flex [&>*]:-ml-1 [&>*]:shadow-[0_0_0_2px] [&>*]:shadow-gray-200 [&>*]:rounded-full dark:[&>*]:shadow-slate-900 mt-2">
@@ -138,7 +132,86 @@ export const Profile = () => {
                   <Avatar />
                   <Avatar />
                 </div>
-              </div> */}
+              </div>
+
+              <div className="flex items-end ml-auto">
+                {data?.checkFriend === null &&
+                  _id !== user?._id &&
+                  _id !== "" && (
+                    <Button
+                      className="min-w-[200px]"
+                      type="primary"
+                      onClick={async () => {
+                        await friendService.addFriend(_id);
+                        refetchCheckUser();
+                      }}
+                    >
+                      Kết bạn
+                    </Button>
+                  )}
+
+                {data?.checkFriend?.confirm && (
+                  <Button
+                    className="min-w-[200px]"
+                    type="red"
+                    onClick={async () => {
+                      await friendService.cancelFriendRequest(_id);
+                      refetchCheckUser();
+                    }}
+                  >
+                    Hủy bạn bè
+                  </Button>
+                )}
+
+                {data?.checkFriend?.sender._id === user?._id &&
+                  data?.checkFriend?.confirm == false && (
+                    <Button
+                      className="min-w-[200px]"
+                      type="red"
+                      onClick={async () => {
+                        await friendService.cancelFriendRequest(_id);
+                        refetchCheckUser();
+                      }}
+                    >
+                      Hủy lời mời
+                    </Button>
+                  )}
+
+                {data?.checkFriend?.sender._id === _id &&
+                  data?.checkFriend?.confirm === false && (
+                    <Button
+                      className="min-w-[200px]"
+                      type="primary"
+                      onClick={async () => {
+                        await friendService.confirm(_id);
+                        refetchCheckUser();
+                      }}
+                    >
+                      Đòng ý kết bạn
+                    </Button>
+                  )}
+                {/* <div className="ml-4">
+                  <Dropdown
+                    placement="bottomRight"
+                    content={
+                      <div className="w-[200px]">
+                        {user?._id !== _id && (
+                          <div
+                            onClick={() => {
+                              userService.block(_id);
+                            }}
+                            className="p-2 text-sm text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-slate-700 cursor-pointer rounded"
+                          >
+                            Chặn người dùng
+                          </div>
+                        )}
+                      </div>
+                    }
+                  >
+                    <ButtonIconThreeDotAction />
+                  </Dropdown>
+                </div> */}
+              </div>
             </div>
           </div>
 
@@ -148,35 +221,41 @@ export const Profile = () => {
                 href="#"
                 className="flex items-center pb-4 font-bold text-blue-500 border-b-2 border-solid border-blue-500 px-3 pt-4"
               >
-                {t('Posts')}
+                Posts
               </a>
+              {_id === "" && (
+                <a
+                  href="#"
+                  className="flex items-center dark:border-slate-900 dark:hover:bg-slate-800 pb-4 text-gray-700 dark:text-gray-400 px-3 border-b-2 border-solid border-white hover:bg-gray-100 rounded pt-4"
+                  onClick={(ev) => {
+                    ev.preventDefault();
+                    setOpenAbout(true);
+                  }}
+                >
+                  Tài khoản
+                </a>
+              )}
+              {data?.user?.hideFriendList === false && (
+                <a
+                  onClick={(ev) => {
+                    ev.preventDefault();
+                    setOpen(true);
+                  }}
+                  href="#"
+                  className="flex items-center dark:border-slate-900 dark:hover:bg-slate-800 pb-4 text-gray-700 dark:text-gray-400 px-3 border-b-2 border-solid border-white hover:bg-gray-100 rounded pt-4"
+                >
+                  Friends
+                </a>
+              )}
+
               <a
                 href="#"
                 className="flex items-center dark:border-slate-900 dark:hover:bg-slate-800 pb-4 text-gray-700 dark:text-gray-400 px-3 border-b-2 border-solid border-white hover:bg-gray-100 rounded pt-4"
-                onClick={(ev) => {
-                  ev.preventDefault();
-                  setOpenAbout(true);
-                }}
               >
-                {t('Account')}
-              </a>
-              <a
-                onClick={(ev) => {
-                  ev.preventDefault();
-                  setOpen(true);
-                }}
-                href="#"
-                className="flex items-center dark:border-slate-900 dark:hover:bg-slate-800 pb-4 text-gray-700 dark:text-gray-400 px-3 border-b-2 border-solid border-white hover:bg-gray-100 rounded pt-4"
-              >
-                {t('Friends')}
-              </a>
-              <a
-                href="#"
-                className="flex items-center dark:border-slate-900 dark:hover:bg-slate-800 pb-4 text-gray-700 dark:text-gray-400 px-3 border-b-2 border-solid border-white hover:bg-gray-100 rounded pt-4"
-              >
-                {t('Image')}
+                Photos
               </a>
               <Dropdown
+                arrow
                 content={
                   <div className="w-[200px]">
                     <div className="p-2 text-sm text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-slate-700 cursor-pointer rounded">
@@ -189,123 +268,227 @@ export const Profile = () => {
                 }
                 className="dark:border-slate-900 dark:hover:bg-slate-800 pb-4 text-gray-700 dark:text-gray-400 px-3 border-b-2 border-solid border-white hover:bg-gray-100 rounded pt-4 cursor-pointer"
               >
-                {t('See more')}
-                <IconArrowDown />
+                Xem thêm
               </Dropdown>
             </div>
             <div className="ml-auto">
-              <ButtonIconThreeDotAction />
+              <Dropdown
+                placement="bottomRight"
+                content={
+                  <div className="w-[200px]">
+                    {_id && user?._id !== _id && (
+                      <div
+                        onClick={async () => {
+                          await userService.block(_id);
+                          message.success("Chặn user thành công");
+                        }}
+                        className="p-2 text-sm text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-slate-700 cursor-pointer rounded"
+                      >
+                        Chặn người dùng
+                      </div>
+                    )}
+
+                    {data?.user?.allowFollow && (
+                      <>
+                        {_id &&
+                          user?._id !== _id &&
+                          follow.findIndex((e) => e._id === _id) === -1 && (
+                            <div
+                              onClick={async () => {
+                                await userService.follow(_id);
+                                refetchFollow();
+                              }}
+                              className="p-2 text-sm text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-slate-700 cursor-pointer rounded"
+                            >
+                              Theo dõi
+                            </div>
+                          )}
+
+                        {_id &&
+                          user?._id !== _id &&
+                          follow.findIndex((e) => e._id === _id) != -1 && (
+                            <div
+                              onClick={async () => {
+                                await userService.unfollow(_id);
+                                refetchFollow();
+                              }}
+                              className="p-2 text-sm text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-slate-700 cursor-pointer rounded"
+                            >
+                              Hủy theo dõi
+                            </div>
+                          )}
+                      </>
+                    )}
+                  </div>
+                }
+              >
+                <ButtonIconThreeDotAction />
+              </Dropdown>
             </div>
           </div>
         </div>
         <div className="container mx-auto p-4 flex gap-4">
-          <div className="relative">
-            <Sticky top={66} bottom={16}>
-              <div className="text-sm flex flex-col gap-4 w-[400px] sticky bottom-6 self-start">
-                <Card title="Giới thiệu">
-                  {/* <Textarea
-                  placeholder="Mô tả về bạn"
-                  maxLength={150}
-                  isTextarea={isEditBio}
-                  className={cn(
-                    'border-b-slate-700 border-transparent border font-bold text-center mt-4 mb-4 w-full bg-transparent px-3 py-4 resize-none overflow-hidden select-none cursor-text',
-                    {
-                      'focus:!border-primary-500 !border-slate-700 rounded bg-black bg-opacity-10 h-[70px]':
-                        isEditBio,
-                    },
-                  )}
-                  disabled={!isEditBio}
-                >
+          <div className="relative flex">
+            <div className="flex flex-col gap-4 w-[400px] sticky bottom-6 self-end">
+              <Card title="Intro">
+                <p className="text-center mt-2 mb-2">
                   There's no victory without sacrifice
-                </Textarea> */}
-                  <Contenteditable
-                    placeholder="Thêm mô tả về bạn"
-                    maxLength={125}
-                    id={useId()}
-                    className={cn(
-                      ' after:left-1/2 after:-translate-x-1/2 text-center dark:border-b-slate-700 border-gray-200 border-transparent border font-bold  mt-4 mb-4 w-full bg-transparent px-3 py-4 resize-none overflow-hidden cursor-text min-h-[54px]',
-                      {
-                        'focus:!caret-primary-500 focus:!border-primary-500 dark:border-slate-700 border-gray-200 rounded bg-white dark:bg-black !bg-opacity-5 ':
-                          isEditBio,
-                      },
-                    )}
-                    disabled={!isEditBio}
+                </p>
+                <Button className="w-full">Edit bio</Button>
+              </Card>
+              <Card
+                title="Photos"
+                action={
+                  <a
+                    href="#"
+                    className="dark:hover:bg-slate-800 text-blue-500 hover:bg-gray-100 rounded px-3 py-0.5"
                   >
-                    There's no victory without sacrifice
-                  </Contenteditable>
-                  {/* <hr className="my-4" /> */}
-                  <div className="flex flex-col gap-2 mb-6">
-                    <div className="flex gap-2 items-center">
-                      <IconTie size={20} />
-                      Lập trình viên Fullstack
-                    </div>
-                    <div className="flex gap-2 items-center">
-                      <IconTie size={20} />
-                      Lập trình Backend
-                    </div>
-                    <div className="flex gap-2 items-center">
-                      <IconTie size={20} />
-                      Lập trình viên Frontend
-                    </div>
-                    <div className="flex gap-2 items-center">
-                      <IconAddressBook size={20} />
-                      Hồ Chí Minh
-                    </div>
-                    <div className="flex gap-2 items-center">
-                      <IconWorld size={20} />
-                      <a href="#" target="_blank" className="text-blue-500">
-                        spacedev.vn
-                      </a>
-                    </div>
-                  </div>
-                  <Button
-                    className="w-full"
-                    onClick={() => setIsEditBio(!isEditBio)}
-                    type={isEditBio ? 'primary' : 'default'}
-                  >
-                    {isEditBio ? 'Cập nhật' : 'Chỉnh sửa'}
-                  </Button>
-                </Card>
-                <CardGroup />
-                <Card
-                  title="Photos"
-                  action={
-                    <a
-                      href="#"
-                      className="dark:hover:bg-slate-800 text-blue-500 hover:bg-gray-100 rounded px-3 py-0.5"
-                    >
-                      Xem tất cả
+                    See all photos
+                  </a>
+                }
+              >
+                <div className="mt-3 gap-3 grid grid-cols-3 flex-wrap">
+                  {[...new Array(9)].map((_, i) => (
+                    <a key={i} href="#" className="">
+                      <div className="rounded-lg flex-1 overflow-hidden aspect-square">
+                        <img
+                          className="object-cover w-full h-full"
+                          src={`https://unsplash.it/150/150?t=${Math.random()}`}
+                        />
+                      </div>
                     </a>
-                  }
-                >
-                  <div className="mt-3 gap-3 grid grid-cols-3 flex-wrap">
-                    {[...new Array(9)].map((_, i) => (
-                      <a key={i} href="#" className="">
-                        <div className="rounded-lg flex-1 overflow-hidden aspect-square">
-                          <img
-                            className="object-cover w-full h-full"
-                            src={`https://unsplash.it/150/150?t=${Math.random()}`}
-                          />
-                        </div>
-                      </a>
-                    ))}
-                  </div>
-                </Card>
-                <GeneralInfo />
-              </div>
-            </Sticky>
+                  ))}
+                </div>
+              </Card>
+              <Card
+                title="Friends"
+                className="pb-6"
+                action={
+                  <a
+                    href="#"
+                    className="dark:hover:bg-slate-800 text-blue-500 hover:bg-gray-100 rounded px-3 py-0.5"
+                  >
+                    See all friends
+                  </a>
+                }
+              >
+                <p className="text-gray-600 dark:text-gray-400">
+                  41 mutual friends
+                </p>
+                <div className="mt-3 gap-3 grid grid-cols-3 flex-wrap">
+                  <a href="#" className="">
+                    <div className="rounded-lg flex-1 overflow-hidden aspect-square">
+                      <img
+                        className="object-cover w-full h-full"
+                        src={`https://unsplash.it/150/150?t=${Math.random()}`}
+                      />
+                    </div>
+                    <p className="mt-1 text-sm font-semibold text-gray-900 dark:text-white">
+                      Ronald Peters
+                    </p>
+                  </a>
+                  <a href="#" className="">
+                    <div className="rounded-lg flex-1 overflow-hidden aspect-square">
+                      <img
+                        className="object-cover w-full h-full"
+                        src={`https://unsplash.it/150/150?t=${Math.random()}`}
+                      />
+                    </div>
+                    <p className="mt-1 text-sm font-semibold text-gray-900 dark:text-white">
+                      Mitchell Watkins
+                    </p>
+                  </a>
+                  <a href="#" className="">
+                    <div className="rounded-lg flex-1 overflow-hidden aspect-square">
+                      <img
+                        className="object-cover w-full h-full"
+                        src={`https://unsplash.it/150/150?t=${Math.random()}`}
+                      />
+                    </div>
+                    <p className="mt-1 text-sm font-semibold text-gray-900 dark:text-white">
+                      Cynthia Love
+                    </p>
+                  </a>
+                  <a href="#" className="">
+                    <div className="rounded-lg flex-1 overflow-hidden aspect-square">
+                      <img
+                        className="object-cover w-full h-full"
+                        src={`https://unsplash.it/150/150?t=${Math.random()}`}
+                      />
+                    </div>
+                    <p className="mt-1 text-sm font-semibold text-gray-900 dark:text-white">
+                      Todd Smith
+                    </p>
+                  </a>
+                  <a href="#" className="">
+                    <div className="rounded-lg flex-1 overflow-hidden aspect-square">
+                      <img
+                        className="object-cover w-full h-full"
+                        src={`https://unsplash.it/150/150?t=${Math.random()}`}
+                      />
+                    </div>
+                    <p className="mt-1 text-sm font-semibold text-gray-900 dark:text-white">
+                      Mabel Cannon
+                    </p>
+                  </a>
+                  <a href="#" className="">
+                    <div className="rounded-lg flex-1 overflow-hidden aspect-square">
+                      <img
+                        className="object-cover w-full h-full"
+                        src={`https://unsplash.it/150/150?t=${Math.random()}`}
+                      />
+                    </div>
+                    <p className="mt-1 text-sm font-semibold text-gray-900 dark:text-white">
+                      Lora Ruiz
+                    </p>
+                  </a>
+                  <a href="#" className="">
+                    <div className="rounded-lg flex-1 overflow-hidden aspect-square">
+                      <img
+                        className="object-cover w-full h-full"
+                        src={`https://unsplash.it/150/150?t=${Math.random()}`}
+                      />
+                    </div>
+                    <p className="mt-1 text-sm font-semibold text-gray-900 dark:text-white">
+                      Lilly Sims
+                    </p>
+                  </a>
+                  <a href="#" className="">
+                    <div className="rounded-lg flex-1 overflow-hidden aspect-square">
+                      <img
+                        className="object-cover w-full h-full"
+                        src={`https://unsplash.it/150/150?t=${Math.random()}`}
+                      />
+                    </div>
+                    <p className="mt-1 text-sm font-semibold text-gray-900 dark:text-white">
+                      Jerry Warren
+                    </p>
+                  </a>
+                  <a href="#" className="">
+                    <div className="rounded-lg flex-1 overflow-hidden aspect-square">
+                      <img
+                        className="object-cover w-full h-full"
+                        src={`https://unsplash.it/150/150?t=${Math.random()}`}
+                      />
+                    </div>
+                    <p className="mt-1 text-sm font-semibold text-gray-900 dark:text-white">
+                      Noah Bryan
+                    </p>
+                  </a>
+                </div>
+              </Card>
+            </div>
           </div>
 
           <div className="flex-1 rounded-lg flex gap-4 flex-col">
-            <NewPost />
-            <Post />
-            <Post />
-            <Post />
-            <Post />
-            <Post />
-            <Post />
-            <Post />
-            <Post />
+            <NewPost
+              onSuccess={() => {
+                refetch();
+              }}
+            />
+            {posts?.map((e) => (
+              <Post key={e._id} {...e} />
+            ))}
           </div>
         </div>
       </div>

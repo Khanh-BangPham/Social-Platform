@@ -1,5 +1,5 @@
 import ReactDOM from "react-dom/client";
-import { Popconfirm } from "@components/features/Popconfirm";
+import { Popconfirm } from "../components/Popconfirm";
 
 const container = document.createElement("div");
 document.body.appendChild(container);
@@ -10,7 +10,7 @@ export const Modal = {
     onOk?: () => void;
     onCancel?: () => void;
   }) => {
-    const ui = ReactDOM.createRoot(container);
+    let ui = ReactDOM.createRoot(container);
     ui.render(
       <Popconfirm
         title={props.title}

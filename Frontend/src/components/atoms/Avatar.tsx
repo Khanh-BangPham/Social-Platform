@@ -1,68 +1,45 @@
-import { useId } from "react";
-import { cn } from "../../utils";
-import { BorderGradient, BorderGradientProps } from "./BorderGradient";
-import { Link } from "react-router-dom";
+import { useUser } from '@hooks/useUser';
+import { useId } from 'react';
+import { cn } from '../../utils';
 
-export interface AvatarProps {
+export const Avatar: Atom<{
   size?: number;
+  border?: boolean;
   online?: boolean;
   showStatus?: boolean;
-  link?: string;
   src?: string;
-  border?: Partial<BorderGradientProps>;
-  onClick?: () => void;
-}
-export const Avatar: Atom<AvatarProps> = ({
-  size = 32,
-  online,
-  link = "",
-  ...props
-}) => {
-  let TagWraper = link ? Link : "div";
+  userId?: string;
+}> = ({ size = 32, online, ...props }) => {
   const id = useId();
-  let _w = size;
-  let _h = size;
-
-  if (props.border) {
-    _w -= props.border.size || 8;
-    _h -= props.border.size || 8;
-  }
-
-  const child = (
-    <TagWraper
-      draggable={false}
-      to={link}
+  let user = useUser(props.userId);
+  return (
+    <div
       className={cn(
-        "border-base border relative cursor-pointer rounded-full block ",
-        props.className
+        'relative h-fit h-8 w-8 cursor-pointer rounded-full',
+        props.className,
+        {
+          'shadow-[0_0_0_2px_white] dark:shadow-slate-950': props.border,
+        },
       )}
-      style={{ width: _w, height: _h }}
+      style={{ width: size, height: size }}
     >
-      <div className={cn("rounded-full overflow-hidden w-full h-full")}>
+      <div className={cn('rounded-full overflow-hidden')}>
         <img
-          draggable={false}
-          className="w-full h-full object-cover"
-          src={props.src || `https://unsplash.it/${_w}/${_h}?t=${id}`}
+          className="w-full h-full"
+          src={props.src || `https://unsplash.it/${size}/${size}?t=${id}`}
         />
       </div>
       {props.showStatus && (
         <span
           className={cn(
-            "block w-2 h-2 rounded-full  absolute bottom-0 right-0 shadow-[0_0_0_2px_white] dark:shadow-slate-900",
-            { "bg-green-500": online, "bg-gray-500": !online }
+            'block w-2 h-2 rounded-full  absolute bottom-0 right-0 shadow-[0_0_0_2px_white] dark:shadow-slate-900',
+            {
+              'bg-green-500': user?.online,
+              'bg-gray-500': !user?.online,
+            },
           )}
         ></span>
       )}
-    </TagWraper>
+    </div>
   );
-
-  if (typeof props.border === "object") {
-    return (
-      <BorderGradient className="rounded-full " size={props.border.size}>
-        <div className=" rounded-full">{child}</div>
-      </BorderGradient>
-    );
-  }
-
-  return child;
 };

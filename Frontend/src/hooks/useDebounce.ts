@@ -1,27 +1,17 @@
-import { Dispatch, SetStateAction, useRef, useState } from 'react';
-
-type UseDebounceRes<T> = [T, Dispatch<SetStateAction<T>>];
-type UseDebounceDispatch<T> = UseDebounceRes<T>[1];
-
+import { useState, useRef } from "react";
 export const useDebounce = <T>(
-  defaultValue: T,
-  delay = 300,
-): [...UseDebounceRes<T>, ...UseDebounceRes<T>] => {
-  const [value, _setValue] = useState(defaultValue);
-  const [currentValue, setCurrentValue] = useState(defaultValue);
-
+  timeout = 300,
+  defaultValue?: T
+): [T, (value: T) => void] => {
+  const [value, _setValue] = useState<T>(defaultValue as T);
   const timeoutRef = useRef<NodeJS.Timeout>();
-  const setValue: UseDebounceDispatch<T> = (value: any) => {
+
+  const setValue = (_value: T) => {
     clearTimeout(timeoutRef.current);
     timeoutRef.current = setTimeout(() => {
-      _setValue(value);
-    }, delay);
-    setCurrentValue(value);
+      _setValue(_value);
+    }, timeout);
   };
 
-  const setImmediately = (value: any) => {
-    setCurrentValue(value);
-  };
-
-  return [value, setValue, currentValue, setImmediately];
+  return [value, setValue];
 };

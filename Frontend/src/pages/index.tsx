@@ -1,97 +1,143 @@
-import { InfinityLoading } from '@components/atoms/InfinityLoading';
-import { Sticky } from '@components/atoms/Sticky';
-import { CardGroup } from '@components/features/CardGroup';
-import { useTitle } from '@hooks/useTitle';
-import { fakeApi, mockPosts } from '@utils/mock';
-import { useEffect, useState } from 'react';
-import { Button } from '../components/atoms/Button';
-import { useAuth } from '../components/features//AuthProvider';
-import { GeneralInfo } from '../components/features//GeneralInfo';
-import { Message } from '../components/features//Message';
-import { NewPost } from '../components/features//NewPost';
-import { Post, PostLoading } from '../components/features//Post';
-import { Story } from '../components/features//Story';
-import { SuggestedForYou } from '../components/features//SuggestedForYou';
-import { LOGIN_MODAL, setGlobalState } from '../store/queryClient';
+import { useQuery } from "@tanstack/react-query";
+import { Activity } from "../components/Activity";
+import { useAuth } from "../components/AuthProvider";
+import { Button } from "../components/Button";
+import { Card } from "../components/Card";
+import { GeneralInfo } from "../components/GeneralInfo";
+import { Message } from "../components/Message";
+import { NewPost } from "../components/NewPost";
+import { Post } from "../components/Post";
+import { Story } from "../components/Story";
+import { SuggestedForYou } from "../components/SuggestedForYou";
+import {
+  POPUP_LOGIN,
+  USER_LOGIN,
+  setGloablState,
+  useGlobalState,
+} from "../store/queryClient";
+import { postService } from "../services/post";
 
 export const Home = () => {
-  const { user } = useAuth();
-  const [posts, setPosts] = useState(() => mockPosts(3));
-  const [loading, setLoading] = useState(false);
-  useTitle('Spacedev facinsrule');
-
-  useEffect(() => {
-    const event = () => {
-      const offset =
-        document.body.scrollHeight - window.scrollY - window.innerHeight;
-      if (offset < 200) {
-        setLoading(true);
-        fakeApi(() => mockPosts(5)).then((res) => {
-          setPosts([...posts, ...res]);
-          setLoading(false);
-        });
-      }
-    };
-    window.addEventListener('scroll', event);
-    return () => {
-      window.removeEventListener('scroll', event);
-    };
-  }, [posts]);
+  // const { user } = useAuth();
+  const user = useGlobalState(USER_LOGIN);
+  const { data, refetch } = useQuery({
+    queryKey: [],
+    queryFn: postService.getPosts,
+  });
 
   return (
     <div className="px-4 flex w-full gap-4 mt-4">
-      <div className="w-sidebar">
-        <div className="relative h-full">
-          <Sticky top={66} bottom={16}>
-            <div className="flex gap-4 flex-col ">
-              {user ? (
-                <>
-                  <SuggestedForYou />
-                  <CardGroup />
-                  {/* <Activity /> */}
-                </>
-              ) : (
-                <>
-                  <div className="px-2">
-                    <p className="text-sm">
-                      Đăng nhập để thực hiện các hành động như like, comment,
-                      chia sẻ,...
-                    </p>
-                    <Button
-                      size="large"
-                      type="red"
-                      className="w-full mt-3"
-                      onClick={() => setGlobalState(LOGIN_MODAL, true)}
-                    >
-                      Đăng nhập
-                    </Button>
-                  </div>
-                </>
-              )}
-              <GeneralInfo />
+      <div className="w-sidebar flex gap-4 flex-col">
+        {user ? (
+          <>
+            <Activity />
+            <SuggestedForYou />
+            <Card
+              title="Explore"
+              action={
+                <a href="#" className="text-gray-400 font-semibold text-xs">
+                  See all
+                </a>
+              }
+            >
+              <div className="flex gap-2 mt-4 flex-wrap">
+                <a
+                  href="#"
+                  className="leading-6 hover:bg-gray-200 bg-gray-100 rounded-full px-4 text-xs font-semibold text-gray-900 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
+                >
+                  #Product
+                </a>
+                <a
+                  href="#"
+                  className="leading-6 hover:bg-gray-200 bg-gray-100 rounded-full px-4 text-xs font-semibold text-gray-900 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
+                >
+                  #Website
+                </a>
+                <a
+                  href="#"
+                  className="leading-6 hover:bg-gray-200 bg-gray-100 rounded-full px-4 text-xs font-semibold text-gray-900 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
+                >
+                  #Spacedev.vn
+                </a>
+                <a
+                  href="#"
+                  className="leading-6 hover:bg-gray-200 bg-gray-100 rounded-full px-4 text-xs font-semibold text-gray-900 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
+                >
+                  #Reactjs
+                </a>
+                <a
+                  href="#"
+                  className="leading-6 hover:bg-gray-200 bg-gray-100 rounded-full px-4 text-xs font-semibold text-gray-900 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
+                >
+                  #Nodejs
+                </a>
+                <a
+                  href="#"
+                  className="leading-6 hover:bg-gray-200 bg-gray-100 rounded-full px-4 text-xs font-semibold text-gray-900 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
+                >
+                  #PHP
+                </a>
+                <a
+                  href="#"
+                  className="leading-6 hover:bg-gray-200 bg-gray-100 rounded-full px-4 text-xs font-semibold text-gray-900 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
+                >
+                  #AWS
+                </a>
+                <a
+                  href="#"
+                  className="leading-6 hover:bg-gray-200 bg-gray-100 rounded-full px-4 text-xs font-semibold text-gray-900 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
+                >
+                  #Python
+                </a>
+                <a
+                  href="#"
+                  className="leading-6 hover:bg-gray-200 bg-gray-100 rounded-full px-4 text-xs font-semibold text-gray-900 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
+                >
+                  #Go
+                </a>
+              </div>
+            </Card>
+          </>
+        ) : (
+          <>
+            <div className="px-2">
+              <p className="text-sm">
+                Đăng nhập để thực hiện các hành động như like, comment, chia
+                sẻ,...
+              </p>
+              <Button
+                size="large"
+                type="red"
+                className="w-full mt-3"
+                onClick={() => setGloablState(POPUP_LOGIN, true)}
+              >
+                Đăng nhập
+              </Button>
             </div>
-          </Sticky>
-        </div>
+          </>
+        )}
+
+        <GeneralInfo />
       </div>
       <div className="flex-1 w-1 pb-4 ">
         <div className="max-w-main-content mx-auto flex flex-col gap-4">
           {user && (
             <>
               <Story />
-              <NewPost />
+              <NewPost onSuccess={() => refetch()} />
             </>
           )}
 
-          <InfinityLoading
-            loading={loading}
-            loadingRender={<PostLoading />}
-            haveNext
-            className="flex flex-col gap-4"
-          >
-            {posts.map((_, i) => (
-              <Post key={i} />
-            ))}
-          </InfinityLoading>
+          {data?.map((e) => (
+            <Post
+              key={e._id}
+              {...e}
+              onDeleteSuccess={refetch}
+              onEditSuccess={refetch}
+              onHidePostSuccess={refetch}
+              onReportSuccess={refetch}
+            />
+          ))}
         </div>
       </div>
       <div className="w-sidebar flex gap-4 flex-col sticky self-end bottom-16">

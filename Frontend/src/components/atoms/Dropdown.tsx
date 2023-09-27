@@ -1,22 +1,6 @@
-import { useShortcut } from '@hooks/useShortcut';
-import { useWindowEvent } from '@hooks/useWindowEvent';
-import { Observable } from '@utils/Observable';
-import {
-  FC,
-  startTransition,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { FC, startTransition, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '../../utils';
-
-const observable = new Observable();
-
-document.body.addEventListener('click', (...args) => {
-  observable.emit(args);
-});
 
 const container = document.createElement('div');
 interface Position {
@@ -31,9 +15,6 @@ export interface DropdownProps {
   className?: string;
   content?: any;
   arrow?: boolean;
-  closeWhenScroll?: boolean;
-  trigger?: ('click' | 'hover' | 'contextmenu')[];
-  delay?: number;
   placement?:
     | 'top'
     | 'bottom'
@@ -46,9 +27,7 @@ export interface DropdownProps {
   getPopupContainer?: (parentNode: HTMLDivElement) => HTMLElement;
   popupClassName?: string;
   allowToggle?: boolean;
-  onClose?: () => void;
-  autoClose?: boolean;
-  keyboard?: boolean;
+  preventClose?: boolean;
 }
 
 const Arrow = () => {
@@ -69,53 +48,24 @@ export const Dropdown: FC<DropdownProps> = ({
   arrow = false,
   placement = 'bottomLeft',
   allowToggle = true,
-  autoClose = false,
-  keyboard = true,
-  closeWhenScroll = false,
-  delay = 0,
-  trigger = ['click'],
   ...props
 }) => {
   const childrenRef = useRef<HTMLDivElement>(null);
-  const clickChildrenRef = useRef(false);
   const contentRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const [position, setPosition] = useState<Position>({
     top: -99999,
     left: -99999,
   });
-  const hoverTimeoutRef = useRef<NodeJS.Timeout>();
-  const checkHoverRef = useRef(false);
-  const checkHoverLeaveRef = useRef<NodeJS.Timeout>();
-  let _isTriggerClick = useMemo(() => trigger.includes('click'), []);
-  let _isTriggerHover = useMemo(() => trigger.includes('hover'), []);
-  let _isTriggerContextmenu = useMemo(
-    () => trigger.includes('contextmenu'),
-    [],
-  );
-
-  useShortcut(
-    `Escape`,
-    () => {
-      if (keyboard) {
-        setOpen(false);
-      }
-    },
-    [keyboard],
-    open,
-  );
-
-  useWindowEvent('scroll', () => {});
-
   useEffect(() => {
     if (childrenRef.current) {
-      const container = props?.getPopupContainer?.(childrenRef.current);
+      let container = props?.getPopupContainer?.(childrenRef.current);
 
-      const { top, left, height, right } =
+      let { top, left, height, right } =
         container?.getBoundingClientRect() ||
         childrenRef.current.getBoundingClientRect();
 
-      const contentRect = contentRef.current?.getBoundingClientRect() || null;
+      let contentRect = contentRef.current?.getBoundingClientRect() || null;
 
       let pos: Position = {};
       if (placement === 'bottomLeft') {
@@ -141,85 +91,56 @@ export const Dropdown: FC<DropdownProps> = ({
 
       setPosition(pos);
     }
-  }, [open, placement]);
 
-  useEffect(() => {
-    if (!open) props.onClose?.();
-  }, [open]);
-
-  useEffect(() => {
-    const onClickBody = () => {
-      if (!clickChildrenRef.current) {
+    if (open) {
+      const event = () => {
         setOpen(false);
-      }
+      };
 
-      clickChildrenRef.current = false;
-    };
+      // window.addEventListener("click", event);
 
-    window.addEventListener('click', onClickBody);
-    return () => {
-      window.removeEventListener('click', onClickBody);
-    };
-  }, []);
-
-  const _onToggleOpen = (value?: boolean) => {
-    if (allowToggle) {
-      startTransition(() => {
-        setOpen(typeof value !== 'undefined' ? value : !open);
-      });
-    } else {
-      startTransition(() => {
-        setOpen(true);
-      });
+      // return () => {
+      //   window.removeEventListener("click", event);
+      // };
     }
-  };
+  }, [open, placement]);
 
   return (
     <>
       <div
-        onClick={() => {
-          if (!_isTriggerClick) return;
-          clickChildrenRef.current = true;
-          _onToggleOpen();
+        onClick={(ev) => {
+          if (allowToggle) {
+            startTransition(() => {
+              setOpen(!open);
+            });
+          } else {
+            if (open) {
+              ev.stopPropagation();
+            }
+
+            startTransition(() => {
+              setOpen(true);
+            });
+          }
         }}
         ref={childrenRef}
         className={cn('inline-flex gap-1 items-center', props.className)}
-        onContextMenu={(ev) => {
-          if (!_isTriggerContextmenu) return;
-          ev.preventDefault();
-          _onToggleOpen();
-        }}
-        onMouseEnter={() => {
-          if (!_isTriggerHover) return;
-          hoverTimeoutRef.current = setTimeout(() => {
-            checkHoverRef.current = true;
-            _onToggleOpen(true);
-          }, delay);
-        }}
-        onMouseLeave={() => {
-          if (!_isTriggerHover) return;
-          clearTimeout(hoverTimeoutRef.current);
-          checkHoverLeaveRef.current = setTimeout(() => {
-            _onToggleOpen(false);
-          }, 100);
-        }}
       >
         {props.children}
       </div>
       {open &&
         createPortal(
           <>
-            {/* <div
+            <div
               className="fixed top-0 left-0 w-screen h-screen z-[1000]"
-              onClick={_onClose}
-            ></div> */}
+              onClick={() => setOpen(false)}
+              onMouseDownCapture={() => {
+                console.log('capture');
+              }}
+            ></div>
             <div
               onClick={() => {
-                if (autoClose) {
-                  setOpen(false);
-                } else {
-                  clickChildrenRef.current = true;
-                }
+                if (!props.preventClose) setOpen(false);
               }}
               ref={contentRef}
               // onClick={(ev) => ev.stopPropagation()}
@@ -228,21 +149,6 @@ export const Dropdown: FC<DropdownProps> = ({
                 'absolute p-2 dark:bg-slate-800 bg-white rounded-lg z-[1000] shadow-[5px_5px_15px_rgba(0,0,0,0.5)]',
                 props.popupClassName,
               )}
-              onMouseEnter={() => {
-                if (!_isTriggerHover) return;
-
-                clearTimeout(checkHoverLeaveRef.current);
-              }}
-              onMouseLeave={() => {
-                if (!_isTriggerHover) return;
-
-                checkHoverLeaveRef.current = setTimeout(() => {
-                  if (checkHoverRef.current) {
-                    _onToggleOpen(false);
-                  }
-                  checkHoverRef.current = false;
-                }, 300);
-              }}
             >
               {arrow && (
                 <div className="text-white dark:text-slate-800 top-[-6px] right-0 absolute">

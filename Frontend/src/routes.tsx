@@ -1,9 +1,9 @@
-import { RouteObject } from 'react-router-dom';
-import ChatPage from './components/features/Chat';
-import { MainLayout } from './components/layouts/MainLayout';
-import { PATH } from './constants/path';
-import { Home } from './pages';
-import { Profile } from './pages/profile';
+import { RouteObject } from "react-router-dom";
+import { MainLayout } from "./layouts/MainLayout";
+import { Home } from "./pages";
+import { PATH } from "./constants/path";
+import { Profile } from "./pages/profile";
+import ChatPage from "./components/features/Chat";
 
 export const routes: RouteObject[] = [
   {
@@ -15,6 +15,10 @@ export const routes: RouteObject[] = [
       },
       {
         path: PATH.Profile,
+        element: <Profile />,
+      },
+      {
+        path: PATH.User,
         element: <Profile />,
       },
     ],
