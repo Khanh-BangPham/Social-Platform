@@ -6,7 +6,7 @@ import { FC, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { authService } from '../services/auth';
 import { userService } from '../services/user';
-import { USER_LOGIN, setGloablState } from '../store/queryClient';
+import { USER_LOGIN, setGlobalState } from '../store/queryClient';
 import { tokenStorage, userStorage } from '../utils/createStorage';
 import { updateUserLocation } from '../utils/getLocation';
 import { useAuth } from './AuthProvider';
@@ -57,7 +57,7 @@ export const ModalLogin: FC<ModalProps> = ({ ...props }) => {
       <Modal
         {...props}
         open={typeof open === 'boolean' ? open : props.open}
-        title="Log in to Facinsrule"
+        title="Log in to B"
         width={450}
       >
         <div className="flex flex-col pt-10 pb-10 px-10 gap-3">
@@ -151,11 +151,11 @@ export const ModalLogin: FC<ModalProps> = ({ ...props }) => {
         </a> */}
         </div>
         <p className="px-10 pb-5 text-gray-400 text-xs text-center hover:[&_a]:underline [&_a]:text-gray-800">
-          By continuing, you agree to TikTok’s{' '}
+          By continuing, you agree to B's{' '}
           <a href="#" className="dark:text-white">
             Terms of Service
           </a>{' '}
-          and confirm that you have read TikTok’s{' '}
+          and confirm that you have read B's{' '}
           <a href="#" className="dark:text-white">
             Privacy Policy
           </a>
@@ -203,7 +203,7 @@ const ModalLoginNormal: FC<ModalLoginModalProps> = (props) => {
     onSuccess: async (data) => {
       tokenStorage.set(data);
       const user = await userService.getUser();
-      setGloablState(USER_LOGIN, user);
+      setGlobalState(USER_LOGIN, user);
       socket.emit(ServerEvent.Login, user._id);
       userStorage.set(user);
       props?.onSuccess?.();

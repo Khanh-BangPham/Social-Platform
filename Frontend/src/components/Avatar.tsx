@@ -7,7 +7,7 @@ export const Avatar: FC<{
   online?: boolean;
   showStatus?: boolean;
   src?: string;
-}> = ({ size = 32, ...props }) => {
+}> = ({ size = 40, ...props }) => {
   const id = useId();
   return (
     <div

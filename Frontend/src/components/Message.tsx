@@ -5,7 +5,7 @@ import {
   CONVERSATION,
   USER_LOGIN,
   getGlobalState,
-  setGloablState,
+  setGlobalState,
   useGlobalState,
 } from '@store/queryClient';
 import { Link } from 'react-router-dom';
@@ -72,13 +72,13 @@ export const Message = () => {
         </div>
         <div className="mt-4 flex flex-col gap-4 h-full overflow-auto pt-2">
           <div className="flex flex-col gap-4">
-            {friends?.map((e) => {
+            {friends?.map((e, index) => {
               let userFriend =
                 e.sender._id === user?._id ? e.receiver : e.sender;
 
               return (
                 <div
-                  key={e._id}
+                  key={index}
                   className="flex gap-2 items-center cursor-pointer"
                   onClick={() => {
                     socket.emit(
@@ -87,9 +87,8 @@ export const Message = () => {
                         users: [user?._id, userFriend._id],
                       },
                       (conversation: Conversation) => {
-                        console.log('conversation', conversation);
                         let conversations = getGlobalState(CONVERSATION) || [];
-                        setGloablState(CONVERSATION, [
+                        setGlobalState(CONVERSATION, [
                           ...conversations,
                           conversation,
                         ]);

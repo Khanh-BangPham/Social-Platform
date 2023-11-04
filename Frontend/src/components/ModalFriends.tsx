@@ -8,6 +8,7 @@ import { Avatar } from './Avatar';
 import { BorderGradient } from './BorderGradient';
 import { Button } from './Button';
 import { Modal, ModalProps } from './Modal';
+import { random } from 'lodash';
 
 export interface ModalFriendProps extends ModalProps {
   userId: string;
@@ -24,8 +25,6 @@ export const ModalFriends: FC<ModalFriendProps> = (props) => {
   //   queryFn: () => friendService.getUserFriend(props.userId),
   // });
   let { data, isLoading, refetch: refetchGetMyFriend } = useMyFriends();
-  console.log(data);
-
   return (
     <Modal
       title="Friends"
@@ -34,14 +33,15 @@ export const ModalFriends: FC<ModalFriendProps> = (props) => {
       width={500}
     >
       <div className="px-3 flex flex-col gap-3 py-3 max-h-[400px] overflow-auto">
-        {data?.map((friend) => {
+        {data?.map((friend, index) => {
+          friend._id = index.toString();
           let u =
             props.userId === friend.sender._id
               ? friend.receiver
               : friend.sender;
           return (
             <div
-              key={friend._id}
+              key={friend._id? friend._id : random(100)}
               className="flex gap-2 items-center"
               onClick={() => {
                 props.onCancel?.();

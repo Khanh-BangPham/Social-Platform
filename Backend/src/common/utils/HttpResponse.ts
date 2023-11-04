@@ -26,7 +26,15 @@ export class HttpResponse {
       errors,
     };
   }
-
+  static tokenExpiredError(errors: any){
+    return {
+      status: "error",
+      code: 401,
+      message: "Error validating access token: Session has expired",
+      error_code: "ERR123456",
+      errors,      
+    }
+  }
   static deleted(data: any) {
     return {
       code: 204,

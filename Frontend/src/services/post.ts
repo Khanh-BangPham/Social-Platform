@@ -34,6 +34,7 @@ export const postService = {
               avatar
             }
             countComment
+            countLike
             content
             createdAt
             image

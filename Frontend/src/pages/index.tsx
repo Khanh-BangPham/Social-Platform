@@ -8,14 +8,15 @@ import { Message } from "../components/Message";
 import { NewPost } from "../components/NewPost";
 import { Post } from "../components/Post";
 import { Story } from "../components/Story";
-import { SuggestedForYou } from "../components/SuggestedForYou";
+import { InterviewTemplate} from "../components/InterviewTemplate";
 import {
   POPUP_LOGIN,
   USER_LOGIN,
-  setGloablState,
+  setGlobalState,
   useGlobalState,
 } from "../store/queryClient";
 import { postService } from "../services/post";
+import { InterviewRoom } from "@components/InterviewRoom";
 
 export const Home = () => {
   // const { user } = useAuth();
@@ -31,72 +32,8 @@ export const Home = () => {
         {user ? (
           <>
             <Activity />
-            <SuggestedForYou />
-            <Card
-              title="Explore"
-              action={
-                <a href="#" className="text-gray-400 font-semibold text-xs">
-                  See all
-                </a>
-              }
-            >
-              <div className="flex gap-2 mt-4 flex-wrap">
-                <a
-                  href="#"
-                  className="leading-6 hover:bg-gray-200 bg-gray-100 rounded-full px-4 text-xs font-semibold text-gray-900 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
-                >
-                  #Product
-                </a>
-                <a
-                  href="#"
-                  className="leading-6 hover:bg-gray-200 bg-gray-100 rounded-full px-4 text-xs font-semibold text-gray-900 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
-                >
-                  #Website
-                </a>
-                <a
-                  href="#"
-                  className="leading-6 hover:bg-gray-200 bg-gray-100 rounded-full px-4 text-xs font-semibold text-gray-900 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
-                >
-                  #Spacedev.vn
-                </a>
-                <a
-                  href="#"
-                  className="leading-6 hover:bg-gray-200 bg-gray-100 rounded-full px-4 text-xs font-semibold text-gray-900 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
-                >
-                  #Reactjs
-                </a>
-                <a
-                  href="#"
-                  className="leading-6 hover:bg-gray-200 bg-gray-100 rounded-full px-4 text-xs font-semibold text-gray-900 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
-                >
-                  #Nodejs
-                </a>
-                <a
-                  href="#"
-                  className="leading-6 hover:bg-gray-200 bg-gray-100 rounded-full px-4 text-xs font-semibold text-gray-900 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
-                >
-                  #PHP
-                </a>
-                <a
-                  href="#"
-                  className="leading-6 hover:bg-gray-200 bg-gray-100 rounded-full px-4 text-xs font-semibold text-gray-900 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
-                >
-                  #AWS
-                </a>
-                <a
-                  href="#"
-                  className="leading-6 hover:bg-gray-200 bg-gray-100 rounded-full px-4 text-xs font-semibold text-gray-900 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
-                >
-                  #Python
-                </a>
-                <a
-                  href="#"
-                  className="leading-6 hover:bg-gray-200 bg-gray-100 rounded-full px-4 text-xs font-semibold text-gray-900 dark:bg-slate-800 dark:text-white dark:hover:bg-slate-700"
-                >
-                  #Go
-                </a>
-              </div>
-            </Card>
+            <InterviewTemplate />
+            <InterviewRoom />
           </>
         ) : (
           <>
@@ -109,7 +46,7 @@ export const Home = () => {
                 size="large"
                 type="red"
                 className="w-full mt-3"
-                onClick={() => setGloablState(POPUP_LOGIN, true)}
+                onClick={() => setGlobalState(POPUP_LOGIN, true)}
               >
                 Đăng nhập
               </Button>

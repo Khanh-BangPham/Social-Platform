@@ -5,12 +5,13 @@ import { IconProps } from "./type";
 export const ButtonIconHeart: FC<any> = (props) => {
   return (
     <Icon transparent {...props}>
-      <IconHeart />
+      <IconHeart {...props} />
     </Icon>
   );
 };
 
-export const IconHeart: FC<IconProps> = ({ size = 17 }) => {
+export const IconHeart: FC<any> = (props, {  size = 17 }) => {
+  const { liked } = props;
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -19,8 +20,8 @@ export const IconHeart: FC<IconProps> = ({ size = 17 }) => {
       height={size}
       viewBox="0 0 24 24"
       strokeWidth={2}
-      stroke="currentColor"
-      fill="none"
+      stroke={liked ? "none" : "currentColor"}
+      fill={liked ? "red" : "none"}
       strokeLinecap="round"
       strokeLinejoin="round"
     >

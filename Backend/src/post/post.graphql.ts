@@ -9,6 +9,7 @@ import { Report } from "@/report/report.model";
 import { HidePost } from "./models/hide-post.model";
 import { Comment } from "@/comment/comment.model";
 import { HideContent } from "@/hide-content/hide-content.model";
+import { PostLike } from "@/post-like/post-like.model";
 
 @GraphQL(
   `Post`,
@@ -20,6 +21,7 @@ import { HideContent } from "@/hide-content/hide-content.model";
   createdAt: Date
   updatedAt: Date
   countComment: Int
+  countLike: Int
 `
 )
 export class PostSchema {
@@ -51,6 +53,14 @@ export class PostSchema {
       refId: post._id,
       _id: { $nin: [...hideCommentIds, ...commentReportIds] },
     });
+  }
+
+  @Field("countLike")
+  @Auth
+  async countLike(post: any, _: any, context: AuthContext){
+    return await PostLike.count({
+      refId: post._id
+    })
   }
 
   @Resolve("posts(q: String, user: String): [Post]")

@@ -1,7 +1,7 @@
 import {
   USERS,
   getGlobalState,
-  setGloablState,
+  setGlobalState,
   useGlobalState,
 } from '@store/queryClient';
 
@@ -24,7 +24,7 @@ export const setUser = (user: User) => {
     users[i] = user;
   }
 
-  setGloablState(USERS, [...users]);
+  setGlobalState(USERS, [...users]);
 };
 
 export const setUsers = (listUser: User[]) => {
@@ -40,7 +40,5 @@ export const setUsers = (listUser: User[]) => {
     }
   }
 
-  console.log(users);
-
-  setGloablState(USERS, [...users]);
+  setGlobalState(USERS, [...users]);
 };

@@ -6,4 +6,5 @@ interface Post {
   createdAt: number;
   updatedAt: number;
   countComment: number;
+  countLike: number;
 }

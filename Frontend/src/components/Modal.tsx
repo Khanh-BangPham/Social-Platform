@@ -10,11 +10,12 @@ export interface ModalProps {
   title?: any;
   overlayCloseable?: boolean;
   width?: number;
+  height?: number;
   hideIconClose?: boolean;
   className?: string;
 }
 
-export const Modal: FC<ModalProps> = ({ width, ...props }) => {
+export const Modal: FC<ModalProps> = ({ width, height, ...props }) => {
   const checkClickInsideRef = useRef(false);
   useEffect(() => {
     if (props.open) {
@@ -51,7 +52,7 @@ export const Modal: FC<ModalProps> = ({ width, ...props }) => {
           checkClickInsideRef.current = false;
         }}
         onMouseDown={() => (checkClickInsideRef.current = true)}
-        style={{ width }}
+        style={{ width: width, height }}
       >
         <div className="relative">
           {props.title && (

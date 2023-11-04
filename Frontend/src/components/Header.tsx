@@ -31,7 +31,7 @@ import {
   USER_LOGIN,
   getGlobalState,
   removeGlobalState,
-  setGloablState,
+  setGlobalState,
   useGlobalState,
 } from "../store/queryClient";
 import { userService } from "../services/user";
@@ -60,7 +60,7 @@ export const Header = () => {
     <>
       <ModalLogin
         open={openLogin}
-        onCancel={() => setGloablState(POPUP_LOGIN, false)}
+        onCancel={() => setGlobalState(POPUP_LOGIN, false)}
       />
       <header className="dark:bg-slate-900 bg-white h-header px-4 flex sticky top-0 z-10 border-b border-solid border-slate-300 dark:border-slate-700">
         <div className="flex items-center gap-4 w-full">
@@ -71,10 +71,10 @@ export const Header = () => {
             >
               {/* Fucin<span className="text-black px-1 ml-1 leading-8 inline-flex items-center rounded bg-[#ea8f1c]">srule</span> */}
               <img
-                src="https://spacedev.vn/images/LOGO-image-full.svg"
-                className="w-[25px]"
+                src="logo-removebg.png"
+                className="w-[100px]"
               />
-              Fucinsrule
+              BENGILIN
             </Link>
           </div>
           <Dropdown
@@ -600,7 +600,7 @@ export const Header = () => {
               <div className="flex items-center gap-3">
                 <Button
                   type="red"
-                  onClick={() => setGloablState(POPUP_LOGIN, true)}
+                  onClick={() => setGlobalState(POPUP_LOGIN, true)}
                 >
                   Đăng nhập
                 </Button>

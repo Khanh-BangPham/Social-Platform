@@ -12,7 +12,7 @@ import {
   CONVERSATION,
   USER_LOGIN,
   getGlobalState,
-  setGloablState,
+  setGlobalState,
   useGlobalState,
 } from '@store/queryClient';
 import { FC, useEffect, useRef, useState } from 'react';
@@ -35,13 +35,12 @@ let receiverMessageEvent = (message: Message) => {
   let conversation = conversations.find((e) => e._id === message.conversation);
   if (conversation) {
     conversation.messages = [...conversation.messages, message];
-    setGloablState(CONVERSATION, [...conversations]);
+    setGlobalState(CONVERSATION, [...conversations]);
   }
 };
 
 export const FloatingChat = () => {
   const conversations = useGlobalState(CONVERSATION);
-  console.log('FloatingChat');
   useEffect(() => {
     socket.on(ClientEvent.ReceiverMessage, receiverMessageEvent);
 
@@ -179,7 +178,7 @@ export const ChatScreen: FC<ChatScreenProps> = ({ conversation }) => {
                 conversations = conversations.filter(
                   (e) => e._id !== conversation._id,
                 );
-                setGloablState(CONVERSATION, conversations);
+                setGlobalState(CONVERSATION, conversations);
               }}
             />
           </div>
@@ -202,11 +201,12 @@ export const ChatScreen: FC<ChatScreenProps> = ({ conversation }) => {
           <div className="text-center my-4 dark:text-slate-300 text-gray-500 text-sm font-semibold text-opacity-90">
             Thứ sáu, 11/05/2023
           </div>
-          <div className="flex justify-center my-3">
+          {/* <div className="flex justify-center my-3">
             <IconSpin />
-          </div>
-          {messages.map((message) => (
+          </div> */}
+          {messages.map((message, index) => (
             <div
+              key={index}
               className={cn(
                 'px-2 flex gap-2',
                 message.sender._id === user?._id

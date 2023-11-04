@@ -7,11 +7,16 @@ import { GraphQLServer } from "./common/core/decorator";
 import { UserSchema } from "./user/user.graphql";
 import { FriendSchema } from "./friend/friend.graphql";
 import { PostSchema } from "./post/post.graphql";
+import { PostLikeSchema } from "./post-like/post-like.graphql";
+
 import jsonwebtoken from "jsonwebtoken";
 import { GraphQLError } from "graphql";
 import { JWT } from "./common/config";
 import { JWTPayload } from "./auth/auth.service";
 import { CommentSchema } from "./comment/comment.graphql";
+import { InterviewTemplateSchema } from "./interview-template/interview-template.graphql";
+import { InterviewRoom } from "./interview-room/interview-room.model";
+import { InterviewRoomSchema } from "./interview-room/interview-room.graphql";
 // const typeDefs = `#graphql
 //     scalar Date
 //     type Post {
@@ -59,7 +64,16 @@ const LocationType = `
 `;
 
 @GraphQLServer({
-  defs: [UserSchema, FriendSchema, PostSchema, LocationType, CommentSchema],
+  defs: [
+    UserSchema,
+    FriendSchema, 
+    PostSchema, 
+    LocationType, 
+    CommentSchema, 
+    PostLikeSchema, 
+    InterviewTemplateSchema, 
+    InterviewRoomSchema
+  ],
   scalars: [dateScalar],
   url: "/graphql",
   playground: "/graphql-devtool",

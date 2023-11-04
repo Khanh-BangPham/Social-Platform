@@ -31,9 +31,9 @@ export const ModalAbout: FC<ModalProps> = (props) => {
             <div className="flex gap-2 items-center">
               <Avatar />
               <div>
-                <h3 className="text-sm font-bold ">Đặng Thuyền Vương</h3>
+                <h3 className="text-sm font-bold ">Phạm Khánh Băng</h3>
                 <p className="text-xs text-gray-500">
-                  dangthuyenvuong@gmail.com
+                  phamkhanhbang150902@gmail.com
                 </p>
               </div>
             </div>

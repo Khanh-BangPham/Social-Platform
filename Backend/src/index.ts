@@ -14,6 +14,11 @@ import { ReportController } from "./report/report.controller";
 import { CommentController } from "./comment/comment.controller";
 import { HideContentController } from "./hide-content/hide-content.controller";
 import { SocketApp } from "./socket";
+import { PostLikeController } from "./post-like/post-like.controller";
+import { InterviewQuestionController } from "./interview-question/interview-question.controller";
+import { InterviewTemplateController } from "./interview-template/interview-template.controller";
+import { InterviewRoomController } from "./interview-room/interview-room.controller";
+import { InterviewAnswersController } from "./interview-answers/interview-answers.controller";
 
 config();
 let port = process.env.PORT;
@@ -27,7 +32,12 @@ let port = process.env.PORT;
     FileController,
     ReportController,
     CommentController,
+    PostLikeController,
     HideContentController,
+    InterviewQuestionController,
+    InterviewTemplateController,
+    InterviewRoomController,
+    InterviewAnswersController
   ],
   database: databaseConfig,
   guard: JwtMiddleware,

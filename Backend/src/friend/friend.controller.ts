@@ -38,10 +38,10 @@ export class FriendController {
 
   @Post("/add-friend")
   @Validate(validateAddFriendSchema)
-  async addFriend(req: AuthRequest<{ receiverId: string }>) {
+  async addFriend(req: AuthRequest<any, { receiverId: string }>) {
     return HttpResponse.success(
       await this.friendService.addFriend({
-        receiverId: req.body.receiverId,
+        receiverId: req.query.receiverId,
         senderId: req.user,
       })
     );

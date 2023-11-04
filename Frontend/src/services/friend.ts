@@ -12,7 +12,7 @@ export const friendService = {
     return api.post(`/friend/confirm/${userId}`);
   },
   myFriends(){
-    return api.post(`/friend/my-friend`);
+    return api.post<Friend[]>(`/friend/my-friend`);
   },
   async getUserFriend(userId?: string) {
     let res = await client.query<{ friends: Friend[] }>({

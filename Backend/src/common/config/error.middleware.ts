@@ -17,6 +17,9 @@ export const errorMiddleware = (
   console.log(chalk.red(log));
 
   fs.appendFile(`./errors/${moment().format("DD-MM-YYYY")}.txt`, log, () => {});
-
+  if(err.name.includes("TokenExpiredError")){
+    res.status(401).json(HttpResponse.tokenExpiredError(err))
+    return
+  }
   res.status(400).json(HttpResponse.error(err));
 };

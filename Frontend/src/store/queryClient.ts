@@ -5,14 +5,22 @@ import { userStorage } from '../utils/createStorage';
 
 export const POPUP_LOGIN = 'POPUP_LOGIN';
 export const USER_LOGIN = 'USER_LOGIN';
+export const SELECT_TEMPLATE = 'SELECT_TEMPLATE';
+export const SELECT_ROOM = 'SELECT_ROOM';
+export const SELECT_USER = 'SELECT_USER';
 export const CONVERSATION = 'CONVERSATION';
 export const USERS = 'USERS';
+export const REFRESH_TOKEN = 'REFRESH_TOKEN'
 
 export interface GlobalState {
   [POPUP_LOGIN]: boolean;
   [USER_LOGIN]?: User;
   [CONVERSATION]: Conversation[];
   [USERS]: User[];
+  [REFRESH_TOKEN]: string;
+  [SELECT_USER]?: any; 
+  [SELECT_TEMPLATE]?: any;
+  [SELECT_ROOM]?: any;
 }
 
 export const queryClient = new QueryClient({
@@ -24,7 +32,7 @@ export const queryClient = new QueryClient({
   },
 });
 
-export const setGloablState = <T extends keyof GlobalState>(
+export const setGlobalState = <T extends keyof GlobalState>(
   name: T,
   value: Required<GlobalState>[T],
 ) => {
@@ -64,10 +72,10 @@ export const useGlobalState = <T extends keyof GlobalState>(
 };
 let user = userStorage.get();
 
-setGloablState(POPUP_LOGIN, false);
-setGloablState(USER_LOGIN, user);
-setGloablState(CONVERSATION, []);
-setGloablState(USERS, []);
+setGlobalState(POPUP_LOGIN, false);
+setGlobalState(USER_LOGIN, user);
+setGlobalState(CONVERSATION, []);
+setGlobalState(USERS, []);
 
 if (user) {
   setTimeout(() => {

@@ -7,7 +7,7 @@ import { DarkModeProvider } from './components/DarkModeProvider';
 import { routes } from './routes';
 import { userService } from './services/user';
 import './socket';
-import { USER_LOGIN, setGloablState } from './store/queryClient';
+import { USER_LOGIN, setGlobalState } from './store/queryClient';
 import { tokenStorage, userStorage } from './utils/createStorage';
 import { updateUserLocation } from './utils/getLocation';
 
@@ -89,7 +89,7 @@ function App() {
     if (tokenStorage.get()) {
       userService.getUser().then((res) => {
         userStorage.set(res);
-        setGloablState(USER_LOGIN, res);
+        setGlobalState(USER_LOGIN, res);
       });
     }
   }, []);

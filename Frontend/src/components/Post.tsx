@@ -25,6 +25,7 @@ import { COMMENT } from "../constants/queryKey";
 import { Menu } from "./Menu";
 import { ENTER_KEY } from "../constants";
 import { hideContentService } from "../services/hide-content";
+import { postLikeService } from "@services/post-like";
 
 export interface PostProps extends Post {
   onDeleteSuccess?: () => void;
@@ -39,7 +40,21 @@ export const Post: FC<PostProps> = (props) => {
   const [open, setOpen] = useState(false);
   const userPath = generatePath(PATH.User, { _id: author._id });
   const [openModalCreate, setOpenModalCreate] = useState(false);
-
+  const [isLike, setLike] = useState(false);
+  const { data } = useQuery({
+    queryKey: ["liked-post"],
+    queryFn: async () => {
+      // return await post
+    }
+  })
+  const { mutate: likeAction } = useMutation({
+    mutationFn: async () => {
+      await postLikeService.createPostLike({
+        createdBy: user?._id,
+        refId: _id
+      })
+    }
+  })
   return (
     <>
       <ModalDetail
@@ -71,7 +86,7 @@ export const Post: FC<PostProps> = (props) => {
               </Link>
               - <span className="text-sm">{moment(createdAt).fromNow()}</span>
             </div>
-            <p className="text-gray-500 text-xs">New York City, NY</p>
+            <p className="text-gray-500 text-xs">HCM city, VN</p>
           </div>
           <div>
             <Dropdown
@@ -116,7 +131,12 @@ export const Post: FC<PostProps> = (props) => {
             </Dropdown>
           </div>
         </div>
-        <div className="p-1 overflow-hidden flex items-center max-h-[400px]">
+        {content && (
+          <p className="px-5 mb-4 text-sm">
+            {content}
+          </p>
+        )}
+        <div className="overflow-hidden flex items-center max-h-[400px]">
           <a
             className="w-full"
             href="#"
@@ -130,7 +150,11 @@ export const Post: FC<PostProps> = (props) => {
         </div>
         <div className="flex items-center justify-between p-3">
           <div className="flex gap-0.5 ">
-            <ButtonIconHeart />
+            <ButtonIconHeart liked={isLike} onClick={async () => {
+              await likeAction()
+              setLike(!isLike)
+            }}/>
+            
             <div className="flex gap-1 items-center text-xs">
               <IconComment /> {props.countComment}
             </div>
@@ -141,25 +165,10 @@ export const Post: FC<PostProps> = (props) => {
           </div>
         </div>
         <div className="flex px-5 gap-2 items-center">
-          <div>
-            <Avatar size={27} border />
-          </div>
-          <div className="-ml-2">
-            <Avatar size={27} border />
-          </div>
-          <div className="-ml-2">
-            <Avatar size={27} border />
-          </div>
           <p className="text-sm">
-            Liked by <b>Sue Franklin</b> and <b>1,993 others</b>
+            <b>{props.countLike} likes</b>
           </p>
         </div>
-        {content && (
-          <p className="px-5 mt-4 text-sm">
-            <b>{author.name}</b>&nbsp;
-            {content}
-          </p>
-        )}
       </div>
     </>
   );

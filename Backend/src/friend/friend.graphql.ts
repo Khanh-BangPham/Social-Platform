@@ -46,6 +46,7 @@ export class FriendSchema {
     }
 
     return await Friend.find({
+      confirm: true,
       $or: [{ sender: context.user }, { receiver: context.user }],
     });
     // return await this.friendService.searchFriend(context.user, args.search);
